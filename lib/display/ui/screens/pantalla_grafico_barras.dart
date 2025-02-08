@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:visualizador_charts/data/models/bar_model.dart';
 import 'package:visualizador_charts/data/repositories/bar_repository.dart';
 import 'package:visualizador_charts/display/ui/components/input_grafico.dart';
+import 'package:visualizador_charts/display/ui/utils/utils.dart';
 
 class PantallaGraficoBarras extends StatefulWidget {
   const PantallaGraficoBarras({super.key});
@@ -92,15 +93,7 @@ class _PantallaGraficoBarrasState extends State<PantallaGraficoBarras> {
                     autocorrect: false,
                     textInputType: TextInputType.text,
                     validator: (valor) {
-                      if (valor == null) {
-                        return 'Este campo es requerido';
-                      }
-
-                      if (valor.isEmpty) {
-                        return 'Este campo es requerido';
-                      }
-
-                      return null;
+                      return ValidacionDeData.validarCampoObligatorio(valor);
                     },
                   ),
                   InputGrafico(
@@ -109,19 +102,7 @@ class _PantallaGraficoBarrasState extends State<PantallaGraficoBarras> {
                     autocorrect: false,
                     textInputType: TextInputType.number,
                     validator: (valor) {
-                      if (valor == null) {
-                        return 'Este campo es requerido';
-                      }
-
-                      if (valor.isEmpty) {
-                        return 'Este campo es requerido';
-                      }
-
-                      if (double.tryParse(valor) == null) {
-                        return 'Este campo debe ser un número';
-                      }
-
-                      return null;
+                      return ValidacionDeData.validarNumero(valor);
                     },
                   ),
                   ElevatedButton.icon(
@@ -144,7 +125,20 @@ class _PantallaGraficoBarrasState extends State<PantallaGraficoBarras> {
                   ),
                   ElevatedButton.icon(
                     onPressed: () {
-                      _mostrarAlertaDeConfirmacion(context);
+                      Alertas.mostrarAlertaDeConfirmacion(context,
+                          alBorrar: (ctx) {
+                        final barModel = _barModel;
+                        if (barModel != null) {
+                          setState(() {
+                            barModel.ejeX.removeLast();
+                            barModel.ejeY.removeLast();
+                          });
+
+                          barRepository.guardarBarrasDatos(barModel);
+
+                          Navigator.pop(ctx);
+                        }
+                      });
                     },
                     label: const Text('Borrar último'),
                     icon: Icon(Icons.delete),
@@ -158,39 +152,10 @@ class _PantallaGraficoBarrasState extends State<PantallaGraficoBarras> {
     );
   }
 
-  void _mostrarAlertaDeConfirmacion(BuildContext context) {
-    showCupertinoDialog(
-      context: context,
-      builder: (ctx) {
-        return CupertinoAlertDialog(
-          title: const Text('¿Seguro que quiere borrar?'),
-          actions: [
-            CupertinoDialogAction(
-              child: const Text('Volver'),
-              onPressed: () {
-                Navigator.pop(ctx);
-              },
-            ),
-            CupertinoDialogAction(
-              isDestructiveAction: true,
-              child: const Text('Borrar'),
-              onPressed: () {
-                final barModel = _barModel;
-                if (barModel != null) {
-                  setState(() {
-                    barModel.ejeX.removeLast();
-                    barModel.ejeY.removeLast();
-                  });
-
-                  barRepository.guardarBarrasDatos(barModel);
-
-                  Navigator.pop(ctx);
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void dispose() {
+    super.dispose();
+    _ejeXTextEditingController.dispose();
+    _ejeYTextEditingController.dispose();
   }
 }

@@ -13,7 +13,7 @@ class LineRepository {
     return LineModel.convertirDeDataLocal(puntosDatos);
   }
 
-  void guardarBarrasDatos(LineModel lineModel) async {
+  void guardarPuntosDatos(LineModel lineModel) async {
     await localDataSource.setEjeX(
       data: lineModel.ejeX.map((elemento) {
         return elemento.toString();
@@ -28,3 +28,5 @@ class LineRepository {
     );
   }
 }
+
+final lineRepository = LineRepository(localDataSource: localDataSource);
