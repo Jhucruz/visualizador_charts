@@ -17,8 +17,6 @@ class _PantallaGraficoBarrasState extends State<PantallaGraficoBarras> {
   final _ejeYTextEditingController = TextEditingController();
   final _idFormulario = GlobalKey<FormState>();
 
-  final _ejeXEtiquetas = ['text 1', 'text 2'];
-
   BarModel? _barModel;
 
   @override
@@ -45,38 +43,39 @@ class _PantallaGraficoBarrasState extends State<PantallaGraficoBarras> {
       ),
       body: ListView(
         children: [
-          SizedBox(
-            height: 180,
-            child: BarChart(
-              BarChartData(
-                titlesData: FlTitlesData(
-                  topTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        print(value);
-                        return Text(_ejeXEtiquetas[value.toInt()]);
-                      },
+          Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: SizedBox(
+              height: 180,
+              child: BarChart(
+                BarChartData(
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                      direction: TooltipDirection.bottom,
                     ),
                   ),
+                  titlesData: FlTitlesData(
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          return Text(_barModel!.ejeX[value.toInt()]);
+                        },
+                      ),
+                    ),
+                  ),
+                  barGroups: _barModel!.ejeY.asMap().entries.map((valor) {
+                    return BarChartGroupData(
+                      x: valor.key,
+                      barRods: [
+                        BarChartRodData(toY: valor.value, color: Colors.blue),
+                      ],
+                    );
+                  }).toList(),
                 ),
-                barGroups: [
-                  BarChartGroupData(
-                    x: 0,
-                    barRods: [
-                      BarChartRodData(toY: 10, color: Colors.red),
-                    ],
-                  ),
-                  BarChartGroupData(
-                    x: 1,
-                    barRods: [
-                      BarChartRodData(toY: 20),
-                    ],
-                  ),
-                ],
               ),
             ),
           ),
@@ -131,9 +130,11 @@ class _PantallaGraficoBarrasState extends State<PantallaGraficoBarras> {
                       final barModel = _barModel;
 
                       if (esValiado == true && barModel != null) {
-                        barModel.ejeX.add(_ejeXTextEditingController.text);
-                        barModel.ejeY
-                            .add(double.parse(_ejeYTextEditingController.text));
+                        setState(() {
+                          barModel.ejeX.add(_ejeXTextEditingController.text);
+                          barModel.ejeY.add(
+                              double.parse(_ejeYTextEditingController.text));
+                        });
 
                         barRepository.guardarBarrasDatos(barModel);
                       }
@@ -173,7 +174,19 @@ class _PantallaGraficoBarrasState extends State<PantallaGraficoBarras> {
             CupertinoDialogAction(
               isDestructiveAction: true,
               child: const Text('Borrar'),
-              onPressed: () {},
+              onPressed: () {
+                final barModel = _barModel;
+                if (barModel != null) {
+                  setState(() {
+                    barModel.ejeX.removeLast();
+                    barModel.ejeY.removeLast();
+                  });
+
+                  barRepository.guardarBarrasDatos(barModel);
+
+                  Navigator.pop(ctx);
+                }
+              },
             ),
           ],
         );
