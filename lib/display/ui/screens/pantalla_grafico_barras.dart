@@ -141,7 +141,7 @@ class _PantallaGraficoBarrasState extends State<PantallaGraficoBarras> {
                       });
                     },
                     label: const Text('Borrar último'),
-                    icon: Icon(Icons.delete),
+                    icon: Icon(Icons.delete, color: Colors.red),
                   ),
                 ],
               ),

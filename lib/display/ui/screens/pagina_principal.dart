@@ -9,26 +9,26 @@ class PaginaPrincipal extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Visualizador de Charts'),
+        title: const Text('Visualizador de Graficos'),
       ),
       body: ListView(
         children: [
           TileDeGraficos(
-            titulo: 'Gráfico de barras',
+            titulo: 'Grafico de Barras  ',
             alPresionar: () {
               Navigator.pushNamed(context, Routes.graficoBarras);
             },
           ),
           TileDeGraficos(
-            titulo: 'Gráfico de lineas',
+            titulo: 'Grafico de Lieas ',
             alPresionar: () {
               Navigator.pushNamed(context, Routes.graficoLineas);
             },
           ),
           TileDeGraficos(
-            titulo: 'Gráfico de Pie',
+            titulo: 'Graficos de Torta',
             alPresionar: () {
-              // Agregar grafico de torta
+              Navigator.pushNamed(context, Routes.graficoPies);
             },
           ),
         ],
